@@ -1,5 +1,6 @@
 // Modules to control application life and create native browser window
-const { app, BrowserWindow, Menu } = require('electron');
+const { app, BrowserWindow, dialog, Menu } = require('electron');
+const fs = require('fs');
 // const path = require('path');
 const isMac = process.platform === 'darwin';
 
@@ -43,6 +44,10 @@ function createWindow() {
       submenu: [
         {
           label: 'Open File',
+          accelerator: 'CmdOrCtrl+O',
+          click() {
+            openFile();
+          },
         },
         {
           label: 'Open Folder',
@@ -135,6 +140,20 @@ function createWindow() {
 
   // Open the DevTools.
   // mainWindow.webContents.openDevTools()
+
+  // Open File
+  function openFile() {
+    const files = dialog.showOpenDialogSync(mainWindow, {
+      properties: ['openFile'],
+      filters: [{ name: 'Markdown', extensions: ['md', 'markdown', 'txt'] }],
+    });
+
+    if (!files) return;
+
+    const file = files[0];
+    const fileContent = fs.readFileSync(file).toString();
+    console.log(fileContent);
+  }
 }
 
 // This method will be called when Electron has finished
