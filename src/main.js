@@ -9,9 +9,9 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    // webPreferences: {
-    //   preload: path.join(__dirname, 'preload.js'),
-    // },
+    webPreferences: {
+      nodeIntegration: true,
+    },
   });
 
   // and load the index.html of the app.
@@ -150,9 +150,11 @@ function createWindow() {
 
     if (!files) return;
 
-    const file = files[0];
+    const file = files[0]; // Grab first file path in array
+    // Loads file contents via path acquired via the dialog
     const fileContent = fs.readFileSync(file).toString();
-    console.log(fileContent);
+    // Send fileContent to renderer
+    mainWindow.webContents.send('new-file', fileContent);
   }
 }
 
