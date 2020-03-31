@@ -19,6 +19,7 @@ const App = () => {
 
   return (
     <div className="App">
+      <Header>Journal</Header>
       <Split>
         <CodeWindow>
           <AceEditor
@@ -40,6 +41,21 @@ const App = () => {
 };
 
 export default App;
+
+const Header = styled.header`
+  background-color: #191324;
+  color: #75717c;
+  font-size: 0.8rem;
+  height: 1.5rem;
+  text-align: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  box-shadow: 0px 3px 3px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+  -webkit-app-region: drag;
+`;
 
 const Split = styled.div`
   display: flex;
