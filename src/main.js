@@ -53,6 +53,10 @@ function createWindow() {
         },
         {
           label: 'Open Folder',
+          accelerator: 'CmdOrCtrl+K',
+          click() {
+            openDir();
+          },
         },
       ],
     },
@@ -157,6 +161,23 @@ function createWindow() {
     const fileContent = fs.readFileSync(file).toString();
     // Send fileContent to renderer
     mainWindow.webContents.send('new-file', fileContent);
+  }
+
+  // Open Directory
+  function openDir() {
+    const directory = dialog.showOpenDialogSync(mainWindow, {
+      properties: ['openDirectory'],
+    });
+
+    if (!directory) return;
+
+    const dir = directory[0];
+
+    fs.readdir(dir, (err, files) => {
+      const filtredFiles = files.filter((file) => file.includes('.md'));
+      const filePaths = filtredFiles.map((file) => `${dir}/${file}`);
+      mainWindow.webContents.send('new-dir', filePaths);
+    });
   }
 }
 

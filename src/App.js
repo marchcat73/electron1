@@ -10,9 +10,14 @@ const { ipcRenderer } = window.require('electron');
 
 const App = () => {
   const [loadedFile, setLoadedFile] = useState('');
+  const [directory, setDirectory] = useState('');
 
   ipcRenderer.on('new-file', (event, fileContent) => {
     setLoadedFile(fileContent);
+  });
+
+  ipcRenderer.on('new-dir', (event, filePaths, dir) => {
+    setDirectory(dir);
   });
 
   ipcRenderer.setMaxListeners(0);
