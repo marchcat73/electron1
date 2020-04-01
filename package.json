@@ -40,6 +40,7 @@
   },
   "devDependencies": {
     "electron": "^8.2.0",
+    "electron-react-devtools": "^0.5.3",
     "prettier": "^2.0.2"
   }
 }

@@ -29,6 +29,11 @@ const App = () => {
 
   ipcRenderer.setMaxListeners(0);
 
+  const loadFile = (index) => {
+    const content = fs.readFileSync(filesData[index].path).toString();
+    setLoadedFile(content);
+  };
+
   const loadAndReadFiles = (directory) => {
     fs.readdir(directory, (err, files) => {
       const filtredFiles = files.filter((file) => file.includes('.md'));
@@ -36,7 +41,7 @@ const App = () => {
         path: `${directory}/${file}`,
       }));
 
-      setFilesData(filesData);
+      setFilesData(filesData, () => loadFile(0));
     });
   };
 
@@ -47,15 +52,17 @@ const App = () => {
   }
 
   return (
-    <div className="App">
+    <AppWrap>
       <Header>Journal</Header>
       {directory ? (
         <Split>
-          <div>
-            {filesData.map((file) => (
-              <h2>{file.path}</h2>
+          <FilesWindow>
+            {filesData.map((file, index) => (
+              <button onClick={() => loadFile(index)} key={index}>
+                {file.path}
+              </button>
             ))}
-          </div>
+          </FilesWindow>
           <CodeWindow>
             <AceEditor
               mode="markdown"
@@ -76,11 +83,15 @@ const App = () => {
           <h2>Press CmdORCtrl+K to open directory</h2>
         </LoadingMessage>
       )}
-    </div>
+    </AppWrap>
   );
 };
 
 export default App;
+
+const AppWrap = styled.div`
+  margin-top: 23px;
+`;
 
 const Header = styled.header`
   background-color: #191324;
@@ -100,6 +111,23 @@ const Header = styled.header`
 const Split = styled.div`
   display: flex;
   height: 100vh;
+`;
+
+const FilesWindow = styled.div`
+  background-color: #140f1d;
+  border-right: solid 1px #302b3a;
+  position: relative;
+  width: 20%;
+  &:after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    pointer-events: none;
+    box-shadow: -10px 0 20px rgba(0, 0, 0, 0.3) inset;
+  }
 `;
 
 const LoadingMessage = styled.div`
