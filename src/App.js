@@ -14,6 +14,7 @@ const App = () => {
   const [loadedFile, setLoadedFile] = useState('');
   const [directory, setDirectory] = useState(settings.get('directory') || null);
   const [filesData, setFilesData] = useState([]);
+  const [activeIndex, setActiveIndex] = useState(0);
 
   // On Load
 
@@ -27,7 +28,7 @@ const App = () => {
     loadAndReadFiles(dir);
   });
 
-  ipcRenderer.setMaxListeners(0);
+  // ipcRenderer.setMaxListeners(0);
 
   // const loadFile = (index) => {
   //   const content = fs.readFileSync(filesData[index].path).toString();
@@ -38,6 +39,7 @@ const App = () => {
     (index) => {
       const content = fs.readFileSync(filesData[index].path).toString();
       setLoadedFile(content);
+      setActiveIndex(index);
     },
     [filesData]
   );
@@ -60,6 +62,20 @@ const App = () => {
     loadAndReadFiles(directoryNew);
   }
 
+  const saveFile = () => {
+    fs.writeFile(filesData[activeIndex].path, loadedFile, (err) => {
+      if (err) return console.log(err);
+      console.log('save');
+    });
+  };
+
+  const changeFile = (index) => () => {
+    if (index !== activeIndex) {
+      saveFile();
+      loadFile(index);
+    }
+  };
+
   useEffect(() => {
     if (filesData.length > 0) {
       console.log('render');
@@ -74,7 +90,7 @@ const App = () => {
         <Split>
           <FilesWindow>
             {filesData.map((file, index) => (
-              <button onClick={() => loadFile(index)} key={index}>
+              <button onClick={changeFile(index)} key={index}>
                 {file.path}
               </button>
             ))}
