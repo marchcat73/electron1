@@ -8,27 +8,54 @@ import './App.css';
 
 const settings = window.require('electron-settings');
 const { ipcRenderer } = window.require('electron');
+const fs = window.require('fs');
 
 const App = () => {
   const [loadedFile, setLoadedFile] = useState('');
   const [directory, setDirectory] = useState(settings.get('directory') || null);
+  const [filesData, setFilesData] = useState([]);
+
+  // On Load
 
   ipcRenderer.on('new-file', (event, fileContent) => {
     setLoadedFile(fileContent);
   });
 
-  ipcRenderer.on('new-dir', (event, filePaths, dir) => {
+  ipcRenderer.on('new-dir', (event, dir) => {
     setDirectory(dir);
     settings.set('directory', dir);
+    loadAndReadFiles(dir);
   });
 
   ipcRenderer.setMaxListeners(0);
+
+  const loadAndReadFiles = (directory) => {
+    fs.readdir(directory, (err, files) => {
+      const filtredFiles = files.filter((file) => file.includes('.md'));
+      const filesData = filtredFiles.map((file) => ({
+        path: `${directory}/${file}`,
+      }));
+
+      setFilesData(filesData);
+    });
+  };
+
+  const directoryNew = settings.get('directory');
+
+  if (directoryNew) {
+    loadAndReadFiles(directoryNew);
+  }
 
   return (
     <div className="App">
       <Header>Journal</Header>
       {directory ? (
         <Split>
+          <div>
+            {filesData.map((file) => (
+              <h2>{file.path}</h2>
+            ))}
+          </div>
           <CodeWindow>
             <AceEditor
               mode="markdown"
