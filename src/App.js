@@ -6,11 +6,12 @@ import 'brace/mode/markdown';
 import 'brace/theme/dracula';
 import './App.css';
 
+const settings = window.require('electron-settings');
 const { ipcRenderer } = window.require('electron');
 
 const App = () => {
   const [loadedFile, setLoadedFile] = useState('');
-  const [directory, setDirectory] = useState('');
+  const [directory, setDirectory] = useState(settings.get('directory') || null);
 
   ipcRenderer.on('new-file', (event, fileContent) => {
     setLoadedFile(fileContent);
@@ -18,6 +19,7 @@ const App = () => {
 
   ipcRenderer.on('new-dir', (event, filePaths, dir) => {
     setDirectory(dir);
+    settings.set('directory', dir);
   });
 
   ipcRenderer.setMaxListeners(0);
@@ -25,22 +27,28 @@ const App = () => {
   return (
     <div className="App">
       <Header>Journal</Header>
-      <Split>
-        <CodeWindow>
-          <AceEditor
-            mode="markdown"
-            theme="dracula"
-            onChange={(newContent) => {
-              setLoadedFile(newContent);
-            }}
-            name="markdown_editor"
-            value={loadedFile}
-          />
-        </CodeWindow>
-        <RenderedWindow>
-          <Markdown>{loadedFile}</Markdown>
-        </RenderedWindow>
-      </Split>
+      {directory ? (
+        <Split>
+          <CodeWindow>
+            <AceEditor
+              mode="markdown"
+              theme="dracula"
+              onChange={(newContent) => {
+                setLoadedFile(newContent);
+              }}
+              name="markdown_editor"
+              value={loadedFile}
+            />
+          </CodeWindow>
+          <RenderedWindow>
+            <Markdown>{loadedFile}</Markdown>
+          </RenderedWindow>
+        </Split>
+      ) : (
+        <LoadingMessage>
+          <h2>Press CmdORCtrl+K to open directory</h2>
+        </LoadingMessage>
+      )}
     </div>
   );
 };
@@ -64,6 +72,15 @@ const Header = styled.header`
 
 const Split = styled.div`
   display: flex;
+  height: 100vh;
+`;
+
+const LoadingMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  background-color: #191324;
   height: 100vh;
 `;
 

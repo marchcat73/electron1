@@ -9,8 +9,8 @@ function createWindow() {
   const mainWindow = new BrowserWindow({
     width: 800,
     height: 600,
-    titleBarStyle: 'hidden',
-    frame: false,
+    // titleBarStyle: 'hidden',
+    // frame: false,
     webPreferences: {
       nodeIntegration: true,
     },
@@ -176,7 +176,7 @@ function createWindow() {
     fs.readdir(dir, (err, files) => {
       const filtredFiles = files.filter((file) => file.includes('.md'));
       const filePaths = filtredFiles.map((file) => `${dir}/${file}`);
-      mainWindow.webContents.send('new-dir', filePaths);
+      mainWindow.webContents.send('new-dir', filePaths, dir);
     });
   }
 }
