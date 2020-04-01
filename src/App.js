@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Markdown from 'markdown-to-jsx';
 import AceEditor from 'react-ace';
 import styled from 'styled-components';
@@ -29,10 +29,18 @@ const App = () => {
 
   ipcRenderer.setMaxListeners(0);
 
-  const loadFile = (index) => {
-    const content = fs.readFileSync(filesData[index].path).toString();
-    setLoadedFile(content);
-  };
+  // const loadFile = (index) => {
+  //   const content = fs.readFileSync(filesData[index].path).toString();
+  //   setLoadedFile(content);
+  // };
+
+  const loadFile = useCallback(
+    (index) => {
+      const content = fs.readFileSync(filesData[index].path).toString();
+      setLoadedFile(content);
+    },
+    [filesData]
+  );
 
   const loadAndReadFiles = (directory) => {
     fs.readdir(directory, (err, files) => {
@@ -41,7 +49,8 @@ const App = () => {
         path: `${directory}/${file}`,
       }));
 
-      setFilesData(filesData, () => loadFile(0));
+      setFilesData(filesData);
+      // loadFile(0);
     });
   };
 
@@ -50,6 +59,12 @@ const App = () => {
   if (directoryNew) {
     loadAndReadFiles(directoryNew);
   }
+
+  useEffect(() => {
+    if (filesData.length > 0) {
+      loadFile(0);
+    }
+  }, [loadFile, filesData]);
 
   return (
     <AppWrap>
