@@ -62,6 +62,7 @@ const App = () => {
 
   useEffect(() => {
     if (filesData.length > 0) {
+      console.log('render');
       loadFile(0);
     }
   }, [loadFile, filesData]);
